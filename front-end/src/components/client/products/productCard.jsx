@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import { Card, Button, Col } from "react-bootstrap";
-import product from "../../../pages/manager/product";
+import React from "react";
+import PropTypes from "prop-types";
+import { Col } from "react-bootstrap";
 
 const ProductCard = (props) => {
   function productType() {
-    if (props.product.isCourse == true) {
+    if (props.product.isCourse === true) {
       return "This product is a course.";
-    } else if (props.product.isMeal == true) {
+    } else if (props.product.isMeal === true) {
       return "This product is a meal.";
     } else {
       return "This product is a normal good.";
@@ -38,6 +38,21 @@ const ProductCard = (props) => {
       </div>
     </Col>
   );
+};
+
+ProductCard.propTypes = {
+  product: PropTypes.shape({
+    _id: PropTypes.string,
+    id: PropTypes.string,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    price: PropTypes.number.isRequired,
+    image: PropTypes.string,
+    isCourse: PropTypes.bool,
+    isMeal: PropTypes.bool,
+    isGoods: PropTypes.bool,
+  }).isRequired,
+  onPurchase: PropTypes.func.isRequired,
 };
 
 export default ProductCard;

@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Button, Modal } from "react-bootstrap";
 
 const EmptyCart = ({ ifVisible, onClose }) => {
@@ -20,6 +21,11 @@ const EmptyCart = ({ ifVisible, onClose }) => {
       </Modal>
     </div>
   );
+};
+
+EmptyCart.propTypes = {
+  ifVisible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default EmptyCart;

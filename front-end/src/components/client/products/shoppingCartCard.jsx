@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Col, Row } from "react-bootstrap";
 
 const ShoppingCartCard = ({
@@ -61,6 +62,21 @@ const ShoppingCartCard = ({
       </div>
     </div>
   );
+};
+
+ShoppingCartCard.propTypes = {
+  item: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    image: PropTypes.string,
+    quantity: PropTypes.number.isRequired,
+    price: PropTypes.number.isRequired,
+  }).isRequired,
+  calculateSubTotal: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onAddOne: PropTypes.func.isRequired,
+  onRemoveOne: PropTypes.func.isRequired,
 };
 
 export default ShoppingCartCard;

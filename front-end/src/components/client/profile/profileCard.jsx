@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Col, Container, Row } from "react-bootstrap";
 
 const ProfileCard = ({ onSubmitUpdate, onUpdate, profile }) => {
-  if (profile == null) {
+  if (profile === null) {
     return <div></div>;
   }
   return (

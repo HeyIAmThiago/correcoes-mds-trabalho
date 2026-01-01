@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Button, Modal } from "react-bootstrap";
 
 const OrderConfirm = ({ ifVisible, onConfirm, onClose }) => {
@@ -20,6 +21,12 @@ const OrderConfirm = ({ ifVisible, onConfirm, onClose }) => {
       </Modal>
     </div>
   );
+};
+
+OrderConfirm.propTypes = {
+  ifVisible: PropTypes.bool.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 export default OrderConfirm;
