@@ -6,7 +6,7 @@ Sistema completo de gerenciamento de academia com interface moderna, 100% em por
 
 ```bash
 # 1. Clone o repositório
-git clone <seu-repositorio>
+git clone https://github.com/HeyIAmThiago/correcoes-mds-trabalho.git
 cd correcoes-mds-trabalho
 
 # 2. Inicie o Docker
