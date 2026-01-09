@@ -21,6 +21,7 @@ import AlreadyLoggedIn from "./pages/client/alreadyLoggedIn";
 import ExecutiveManager from "./pages/executive/executiveManager";
 import ExecutiveLoginForm from "./components/executive/executiveLoginForm";
 import "react-toastify/dist/ReactToastify.css";
+import "./toast-custom.css";
 import OrderManagement from "./pages/manager/orderManagement";
 import AppointmentManagement from "./pages/manager/appointmentManagement";
 import Index from "./pages/client";
@@ -31,7 +32,24 @@ function App() {
   let ejwt = localStorage.getItem("eToken");
   return (
     <div className="wrapper">
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={6000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{
+          top: '20px',
+          right: '20px',
+          fontSize: '15px',
+          fontWeight: '600',
+        }}
+      />
       <NavBar />
       <div className="content">
         <Routes>

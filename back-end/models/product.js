@@ -29,6 +29,16 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+        required: false,
+        default: "Produto disponível na academia"
+    },
+    image: {
+        type: String,
+        required: false,
+        default: "/gym-logo.svg"
+    },
     isCourse: {
         type: Boolean,
         required: true

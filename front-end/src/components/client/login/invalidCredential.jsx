@@ -6,12 +6,14 @@ const InvalidCredential = ({ ifVisible, onClose }) => {
     <div>
       <Modal show={ifVisible} onHide={onClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Invalid Credential</Modal.Title>
+          <Modal.Title style={{ fontWeight: 700, color: '#1a1a1a' }}>
+            Credenciais Inválidas
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>Invalid email or password.</Modal.Body>
+        <Modal.Body>Email ou senha incorretos.</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onClose}>
-            Close
+            Fechar
           </Button>
         </Modal.Footer>
       </Modal>

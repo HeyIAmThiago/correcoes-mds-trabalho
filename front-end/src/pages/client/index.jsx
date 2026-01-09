@@ -9,32 +9,32 @@ const Index = () => {
     <div>
       <header>
         <div className="motion">
-          <h1>Welcome to Workout Day Gym!</h1>
-          <h2>Ready to build your body with us?</h2>
+          <h1>Bem-vindo ao Workout Day Gym!</h1>
+          <h2>Pronto para construir seu corpo conosco?</h2>
           <button
             onClick={() => {
               navigate("/login");
             }}
             className="btn-1"
           >
-            Login
+            Entrar
           </button>
         </div>
       </header>
       <section className="services">
-        <h1>Our services</h1>
-        <h2>Let us help you to reach your fitness goal.</h2>
+        <h1>Nossos serviços</h1>
+        <h2>Deixe-nos ajudá-lo a alcançar seus objetivos fitness.</h2>
         <ul className="service-cards">
           <li className="service-card">
-            <h3>Our products</h3>
+            <h3>Nossos produtos</h3>
             <FontAwesomeIcon
               icon={solid("box")}
               size="5x"
               className="service-icon"
             />
             <p>
-              We have a wide range of products to choose from, including
-              equipments, fitness meals, lessons and more.
+              Temos uma ampla variedade de produtos, incluindo
+              equipamentos, refeições fitness, aulas e muito mais.
             </p>
             <button
               onClick={() => {
@@ -42,36 +42,36 @@ const Index = () => {
               }}
               className="btn-2"
             >
-              Shop now
+              Comprar agora
             </button>
           </li>
           <li className="service-card">
-            <h3>Track Progress</h3>
+            <h3>Acompanhe seu progresso</h3>
             <FontAwesomeIcon
               icon={solid("chart-line")}
               size="5x"
               className="service-icon"
             />
-            <p>Keep track of your progress and plan your next move.</p>
+            <p>Acompanhe seu progresso e planeje seus próximos passos.</p>
             <button
               onClick={() => {
                 navigate("/fitnessProfiles");
               }}
               className="btn-2"
             >
-              Check my profile
+              Ver meu perfil
             </button>
           </li>
           <li className="service-card">
-            <h3>Get a Coach</h3>
+            <h3>Tenha um treinador</h3>
             <FontAwesomeIcon
               icon={solid("calendar-alt")}
               size="5x"
               className="service-icon"
             />
             <p>
-              Make appointments with one of our coaches to get safe and
-              efficient training.
+              Faça agendamentos com nossos treinadores para treinos
+              seguros e eficientes.
             </p>
             <button
               className="btn-2"
@@ -79,7 +79,7 @@ const Index = () => {
                 navigate("/appointments");
               }}
             >
-              Make appointments
+              Fazer agendamento
             </button>
           </li>
         </ul>

@@ -1,20 +1,236 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-td, tr, th {
-    text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-    background-color: #f3f3f3;
-    font-family: Poppins, sans-serif;
+body {
+  background-color: #fafafa;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1a1a1a;
+  line-height: 1.6;
 }
 
-.wrapper{
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.content{
-    flex:1
+.content {
+  flex: 1;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Cards modernos */
+.card {
+  background: white;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  transform: translateY(-2px);
+}
+
+/* Botões modernos */
+.btn {
+  border-radius: 12px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border: none !important;
+  transition: all 0.3s ease;
+  text-transform: none;
+}
+
+.btn-primary {
+  background: #ff6b35 !important;
+  color: white !important;
+}
+
+.btn-primary:hover {
+  background: #e55a2b !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3) !important;
+}
+
+.btn-secondary {
+  background: #f0f0f0 !important;
+  color: #1a1a1a !important;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0 !important;
+}
+
+.btn-success {
+  background: #10b981 !important;
+  color: white !important;
+}
+
+.btn-danger {
+  background: #ef4444 !important;
+  color: white !important;
+}
+
+/* Inputs modernos */
+.form-control {
+  border: 2px solid #e5e5e5 !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #ff6b35 !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #4a4a4a;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* Tabelas modernas */
+table {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+th {
+  background: #fafafa !important;
+  color: #4a4a4a !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 12px !important;
+  letter-spacing: 0.5px;
+  padding: 16px !important;
+  border: none !important;
+  text-align: center;
+}
+
+td {
+  padding: 16px !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Container de página */
+.page-container {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+/* Tabs modernos */
+.nav-tabs {
+  border-bottom: 2px solid #f0f0f0 !important;
+  margin-bottom: 24px !important;
+}
+
+.nav-tabs .nav-link {
+  border: none !important;
+  color: #6b7280 !important;
+  font-weight: 600 !important;
+  padding: 12px 24px !important;
+  transition: all 0.3s ease !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #ff6b35 !important;
+  background: #fff5f2 !important;
+}
+
+.nav-tabs .nav-link.active {
+  color: #ff6b35 !important;
+  background: white !important;
+  border-bottom: 3px solid #ff6b35 !important;
+}
+
+/* Calendar customizado */
+.modern-calendar {
+  border: none !important;
+  border-radius: 12px !important;
+  width: 100% !important;
+}
+
+.react-calendar__tile {
+  border-radius: 8px !important;
+  margin: 2px !important;
+}
+
+.react-calendar__tile--active {
+  background: #ff6b35 !important;
+  color: white !important;
+}
+
+.react-calendar__tile--now {
+  background: #fff5f2 !important;
+  color: #ff6b35 !important;
+  font-weight: 600 !important;
+}
+
+.react-calendar__tile:hover {
+  background: #fff5f2 !important;
+  color: #ff6b35 !important;
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: #ef4444 !important;
+}
+
+.react-calendar__navigation button {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .content {
+    padding: 12px;
+  }
+
+  .page-container {
+    padding: 20px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
 }

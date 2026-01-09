@@ -1,0 +1,64 @@
+/* Estilos customizados para Toasts */
+
+.Toastify__toast {
+  border-radius: 12px !important;
+  padding: 20px !important;
+  min-width: 350px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.Toastify__toast-container {
+  z-index: 9999 !important;
+}
+
+.Toastify__progress-bar {
+  height: 4px !important;
+}
+
+/* Animações suaves */
+.Toastify__toast--success {
+  animation: slideInRight 0.4s ease-out;
+}
+
+.Toastify__toast--error {
+  animation: slideInRight 0.4s ease-out;
+}
+
+.Toastify__toast--warning {
+  animation: slideInRight 0.4s ease-out;
+}
+
+.Toastify__toast--info {
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Hover effect */
+.Toastify__toast:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2) !important;
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Botão de fechar */
+.Toastify__close-button {
+  opacity: 0.5;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+

@@ -1,0 +1,20 @@
+================================
+🏋️  WORKOUT DAY GYM - QUICK START
+================================
+
+1️⃣  Clone o repositório
+2️⃣  Execute: .\SETUP.ps1
+3️⃣  Acesse: http://localhost:3000
+
+🔑 GERENTE:
+   http://localhost:3000/branch
+   gerente@filial.com / gerente@filial.com
+
+👤 CLIENTE:
+   http://localhost:3000/register
+   (cadastre-se primeiro)
+
+================================
+Pronto! Sistema 100% funcional!
+================================
+

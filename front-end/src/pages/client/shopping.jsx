@@ -4,6 +4,7 @@ import ShoppingCart from "./shoppingCart";
 import { Container, Tab, Tabs } from "react-bootstrap";
 import LoginPrompt from "../../components/client/login/loginPrompt";
 import http from "../../services/httpService";
+import { showSuccessToast, showErrorToast, showInfoToast } from "../../components/Toast";
 
 class Shopping extends Component {
   state = {
@@ -30,7 +31,7 @@ class Shopping extends Component {
             product.image = "/gym-logo.svg";
           }
           if (!product.description) {
-            product.description = "This is a product provided by the gym.";
+            product.description = "Produto disponível na academia Workout Day Gym";
           }
         });
         this.setState({ products });
@@ -43,6 +44,7 @@ class Shopping extends Component {
       const ifPurchasing = true;
       this.setState({ productPurchasing: product, ifPurchasing });
     } else {
+      showInfoToast("Faça login para adicionar produtos ao carrinho");
       this.setState({ loginPromptVisibility: true });
     }
   };
@@ -67,6 +69,7 @@ class Shopping extends Component {
         price: product.price,
       };
       shoppingCartItems.push(item);
+      showSuccessToast(`${product.name} adicionado ao carrinho! 🎉`);
       this.setState({
         shoppingCartItems,
         productPurchasing: null,
@@ -74,6 +77,7 @@ class Shopping extends Component {
       });
     } else {
       shoppingCartItems[index].quantity += Number.parseInt(quantity, 10);
+      showSuccessToast(`Quantidade de ${product.name} atualizada no carrinho!`);
       this.setState({
         shoppingCartItems,
         productPurchasing: null,
@@ -86,11 +90,13 @@ class Shopping extends Component {
     const shoppingCartItems = this.state.shoppingCartItems.filter(
       (i) => i._id !== item._id
     );
+    showInfoToast(`${item.name} removido do carrinho`);
     this.setState({ shoppingCartItems });
   };
 
   onClear = () => {
     const shoppingCartItems = [];
+    showInfoToast("Carrinho limpo com sucesso");
     this.setState({ shoppingCartItems });
   };
 
@@ -141,13 +147,14 @@ class Shopping extends Component {
 
   handleOrderConfirmOpen = () => {
     if (this.state.shoppingCartItems.length === 0) {
+      showErrorToast("Seu carrinho está vazio! Adicione produtos antes de finalizar o pedido.");
       this.setState({ emptyCartVisibility: true });
     } else {
       this.setState({ orderConfirmVisible: true });
     }
   };
 
-  handleOrderConfirm = () => {
+  handleOrderConfirm = (paymentMethod) => {
     const products = this.state.shoppingCartItems.map((item) => {
       const product = {
         name: item.name,
@@ -158,6 +165,14 @@ class Shopping extends Component {
     });
     const customerId = localStorage.getItem("id");
     const uri = process.env.REACT_APP_API_ENDPOINT + "/order";
+    
+    const paymentMethodNames = {
+      credit: "Cartão de Crédito",
+      debit: "Cartão de Débito",
+      pix: "PIX",
+      cash: "Dinheiro"
+    };
+    
     http
       .post(
         // "http://localhost:4000/order"
@@ -165,13 +180,15 @@ class Shopping extends Component {
         {
           products,
           customerId,
+          paymentMethod: paymentMethodNames[paymentMethod] || paymentMethod,
         }
       )
       .then(function (response) {
-        // Order created successfully
+        showSuccessToast(`Pedido realizado com sucesso via ${paymentMethodNames[paymentMethod]}! 🎉`);
       })
       .catch(function (error) {
         console.error("Error creating order:", error);
+        showErrorToast("Erro ao processar seu pedido. Tente novamente.");
       });
     this.setState({ shoppingCartItems: [], orderConfirmVisible: false });
   };
@@ -202,7 +219,7 @@ class Shopping extends Component {
             id="uncontrolled-tab-example"
             className="mb-3"
           >
-            <Tab eventKey="products" title="Products">
+            <Tab eventKey="products" title="Produtos">
               <Products
                 products={products}
                 onPurchase={this.onPurchase}
@@ -213,7 +230,7 @@ class Shopping extends Component {
                 shoppingCartItems={shoppingCartItems}
               />
             </Tab>
-            <Tab eventKey="shoppingCart" title="Shopping Cart">
+            <Tab eventKey="shoppingCart" title="Carrinho de Compras">
               <ShoppingCart
                 shoppingCartItems={shoppingCartItems}
                 calculateTotal={this.calculateTotal}

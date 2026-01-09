@@ -7,12 +7,16 @@ const LoginPrompt = ({ ifVisible, onClose }) => {
     <div>
       <Modal show={ifVisible} onHide={onClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Login required</Modal.Title>
+          <Modal.Title style={{ fontWeight: 700, color: '#1a1a1a' }}>
+            Login Necessário
+          </Modal.Title>
         </Modal.Header>
-        <Modal.Body>Please login to continue purchasing.</Modal.Body>
+        <Modal.Body>
+          Por favor, faça login para continuar com a compra.
+        </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onClose}>
-            Close
+            Fechar
           </Button>
         </Modal.Footer>
       </Modal>

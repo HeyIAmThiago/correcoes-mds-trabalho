@@ -36,18 +36,20 @@ const ShoppingCart = ({
           ))}
         </Container>
         <div className="container-fluid d-flex justify-content-center">
-          <p>Total: {calculateTotal(shoppingCartItems)}</p>
+          <p style={{ fontSize: '24px', fontWeight: 700, color: '#ff6b35' }}>
+            Total: R$ {calculateTotal(shoppingCartItems).toFixed(2)}
+          </p>
         </div>
-        <div className="container-fluid d-flex justify-content-center">
+        <div className="container-fluid d-flex justify-content-center gap-2">
           <Button
             variant="primary"
             className="mx-2"
             onClick={onOrderConfirmOpen}
           >
-            Place the order
+            Finalizar Pedido
           </Button>
           <Button variant="warning" onClick={onClear}>
-            Clear
+            Limpar Carrinho
           </Button>
         </div>
       </div>

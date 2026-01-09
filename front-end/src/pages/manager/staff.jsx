@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Container, FloatingLabel, Form, Modal, Table } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import http from "../../services/httpService"
+import http from "../../services/httpService";
+import { showSuccessToast, showErrorToast } from "../../components/Toast";
 import MyPagination from "../../utils/pagination";
+import "../../css/manager.css";
 
 const empty = {
     firstName: "",
@@ -24,32 +26,50 @@ const Staff = () => {
     const [staff, setStaff] = useState(empty);
     const [adding, setAdding] = useState(true);
     const [currentPage, setPage] = useState(1);
+    
     const handleClose = () => setShow(false);
+    
     const handleSave = async () => {
-        if (adding)
-            await http.post(uri, staff);
-        else
-            await http.put(uri + staff._id, staff);
-        const data = await http.get(uri);
-        setAllStaff(data.data);
-        handleClose();
+        try {
+            if (adding) {
+                await http.post(uri, staff);
+                showSuccessToast("Funcionário cadastrado com sucesso!");
+            } else {
+                await http.put(uri + staff._id, staff);
+                showSuccessToast("Funcionário atualizado com sucesso!");
+            }
+            const data = await http.get(uri);
+            setAllStaff(data.data);
+            handleClose();
+        } catch (error) {
+            showErrorToast("Erro ao salvar funcionário");
+        }
     };
+    
     const handleEdit = (c) => {
         setAdding(false);
         setStaff(c);
         setShow(true);
     }
+    
     const handleAdd = () => {
         setAdding(true);
         setStaff(empty);
         setShow(true);
     };
+    
     const handleDelete = async () => {
-        await http.delete(uri + staff._id);
-        const data = await http.get(uri);
-        setAllStaff(data.data);
-        handleClose();
+        try {
+            await http.delete(uri + staff._id);
+            showSuccessToast("Funcionário excluído com sucesso!");
+            const data = await http.get(uri);
+            setAllStaff(data.data);
+            handleClose();
+        } catch (error) {
+            showErrorToast("Erro ao excluir funcionário");
+        }
     };
+    
     const getPagedItems = (items) => {
         return items.filter(item => (items.indexOf(item) >= (currentPage - 1) * itemsPerPage) && (items.indexOf(item) < currentPage * itemsPerPage));
     };
@@ -72,133 +92,191 @@ const Staff = () => {
                 <td>{c.email}</td>
                 <td>{c.phone}</td>
                 <td>{c.address}</td>
-                <td>{c.salary}</td>
-                <td>{c.isCoach ? "Yes" : "No"}</td>
-                <td><Button className="pb-0 pt-0" variant="danger" onClick={() => handleEdit(c)}>Edit</Button></td>
+                <td>R$ {Number(c.salary).toFixed(2)}</td>
+                <td>
+                    <span className={`badge ${c.isCoach ? 'bg-success' : 'bg-secondary'}`}>
+                        {c.isCoach ? "Sim" : "Não"}
+                    </span>
+                </td>
+                <td>
+                    <Button size="sm" variant="primary" onClick={() => handleEdit(c)}>
+                        Editar
+                    </Button>
+                </td>
             </tr>)
     };
 
     return (
-        <div>
-            <Container className="my-2">
-                <h1>Staff</h1>
-                <Card>
-                    <Card.Body>
-                        <Table striped bordered hover>
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>SSN</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Address</th>
-                                <th>Salary</th>
-                                <th>Is Coach</th>
-                                <th>Edit</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {getTableContent(getPagedItems(allStaff))}
-                            </tbody>
-                        </Table>
+        <Container className="py-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 style={{ fontWeight: 700, color: '#1a1a1a' }}>Gerenciar Equipe</h2>
+                <Button variant="success" onClick={handleAdd}>
+                    + Adicionar Funcionário
+                </Button>
+            </div>
+            
+            <Card className="modern-card">
+                <Card.Body>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Sobrenome</th>
+                            <th>CPF</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Endereço</th>
+                            <th>Salário</th>
+                            <th>É Coach?</th>
+                            <th>Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {getTableContent(getPagedItems(allStaff))}
+                        </tbody>
+                    </Table>
 
-                        <MyPagination  currentPage={currentPage} onPageChange={setPage} itemsPerPage={itemsPerPage} totalItems={allStaff.length}/>
+                    <MyPagination  
+                        currentPage={currentPage} 
+                        onPageChange={setPage} 
+                        itemsPerPage={itemsPerPage} 
+                        totalItems={allStaff.length}
+                    />
 
-                        <Button as={Link} to="/branch/manage">Back</Button>
-                        <Button onClick={handleAdd} className="mx-3">Add</Button>
-                    </Card.Body>
-                </Card>
-            </Container>
+                    <Button as={Link} to="/branch/manage" variant="secondary" className="mt-3">
+                        Voltar
+                    </Button>
+                </Card.Body>
+            </Card>
 
             <Modal show={show} onHide={handleClose} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>{adding ? "Add a staff" : "Edit a staff"}</Modal.Title>
+                    <Modal.Title style={{ fontWeight: 700 }}>
+                        {adding ? "Adicionar Funcionário" : "Editar Funcionário"}
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group className="mb-2">
-                            <FloatingLabel label="First Name">
-                                <Form.Control type="text"
-                                              placeholder=" "
-                                              value={staff.firstName}
-                                              onChange={(e) => {setStaff({...staff, firstName: e.currentTarget.value})}}/>
+                        <Form.Group className="mb-3">
+                            <FloatingLabel label="Nome">
+                                <Form.Control 
+                                    type="text"
+                                    placeholder=" "
+                                    value={staff.firstName}
+                                    onChange={(e) => {setStaff({...staff, firstName: e.currentTarget.value})}}
+                                    style={{ padding: '20px 12px' }}
+                                />
                             </FloatingLabel>
                         </Form.Group>
-                        <Form.Group className="mb-2">
-                            <FloatingLabel label="Last Name">
-                                <Form.Control type="text"
-                                              placeholder=" "
-                                              value={staff.lastName}
-                                              onChange={(e) => {setStaff({...staff, lastName: e.currentTarget.value})}}/>
+                        <Form.Group className="mb-3">
+                            <FloatingLabel label="Sobrenome">
+                                <Form.Control 
+                                    type="text"
+                                    placeholder=" "
+                                    value={staff.lastName}
+                                    onChange={(e) => {setStaff({...staff, lastName: e.currentTarget.value})}}
+                                    style={{ padding: '20px 12px' }}
+                                />
                             </FloatingLabel>
                         </Form.Group>
-                        <Form.Group className="mb-2">
-                            <FloatingLabel label="SSN">
-                                <Form.Control type="text"
-                                              placeholder=" "
-                                              value={staff.ssn}
-                                              onChange={(e) => {setStaff({...staff, ssn: e.currentTarget.value})}}/>
+                        <Form.Group className="mb-3">
+                            <FloatingLabel label="CPF">
+                                <Form.Control 
+                                    type="text"
+                                    placeholder=" "
+                                    value={staff.ssn}
+                                    onChange={(e) => {setStaff({...staff, ssn: e.currentTarget.value})}}
+                                    style={{ padding: '20px 12px' }}
+                                />
                             </FloatingLabel>
+                            <Form.Text className="text-muted">
+                                Ex: 000.000.000-00
+                            </Form.Text>
                         </Form.Group>
-                        <Form.Group className="mb-2">
+                        <Form.Group className="mb-3">
                             <FloatingLabel label="Email">
-                                <Form.Control type="text"
-                                              placeholder=" "
-                                              value={staff.email}
-                                              onChange={(e) => {setStaff({...staff, email: e.currentTarget.value})}}/>
+                                <Form.Control 
+                                    type="email"
+                                    placeholder=" "
+                                    value={staff.email}
+                                    onChange={(e) => {setStaff({...staff, email: e.currentTarget.value})}}
+                                    style={{ padding: '20px 12px' }}
+                                />
                             </FloatingLabel>
                         </Form.Group>
-                        <Form.Group className="mb-2">
-                            <FloatingLabel label="Phone">
-                                <Form.Control type="text"
-                                              placeholder=" "
-                                              value={staff.phone}
-                                              onChange={(e) => {setStaff({...staff, phone: e.currentTarget.value})}}/>
+                        <Form.Group className="mb-3">
+                            <FloatingLabel label="Telefone">
+                                <Form.Control 
+                                    type="text"
+                                    placeholder=" "
+                                    value={staff.phone}
+                                    onChange={(e) => {setStaff({...staff, phone: e.currentTarget.value})}}
+                                    style={{ padding: '20px 12px' }}
+                                />
+                            </FloatingLabel>
+                            <Form.Text className="text-muted">
+                                Ex: (11) 98765-4321
+                            </Form.Text>
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <FloatingLabel label="Endereço">
+                                <Form.Control 
+                                    type="text"
+                                    placeholder=" "
+                                    value={staff.address}
+                                    onChange={(e) => {setStaff({...staff, address: e.currentTarget.value})}}
+                                    style={{ padding: '20px 12px' }}
+                                />
                             </FloatingLabel>
                         </Form.Group>
-                        <Form.Group className="mb-2">
-                            <FloatingLabel label="Address">
-                                <Form.Control type="text"
-                                              placeholder=" "
-                                              value={staff.address}
-                                              onChange={(e) => {setStaff({...staff, address: e.currentTarget.value})}}/>
+                        <Form.Group className="mb-3">
+                            <FloatingLabel label="Salário (R$)">
+                                <Form.Control 
+                                    type="number"
+                                    step="0.01"
+                                    placeholder=" "
+                                    value={staff.salary}
+                                    onChange={(e) => {setStaff({...staff, salary: e.currentTarget.value})}}
+                                    style={{ padding: '20px 12px' }}
+                                />
                             </FloatingLabel>
                         </Form.Group>
-                        <Form.Group className="mb-2">
-                            <FloatingLabel label="Salary">
-                                <Form.Control type="text"
-                                              placeholder=" "
-                                              value={staff.salary}
-                                              onChange={(e) => {setStaff({...staff, salary: e.currentTarget.value})}}/>
-                            </FloatingLabel>
-                        </Form.Group>
-                        <Form.Group className="mb-2">
-                            <Form.Select value={staff.isCoach ? "Yes" : "No"}
-                                         onChange={(e) => {setStaff({...staff, isCoach: e.currentTarget.value === "Yes"})}}
-                                         size="lg"
-                                         style={{fontSize: "16px", paddingLeft: "12px", paddingTop: "16px", paddingBottom: "16px"}}>
-                                <option>Select</option>
-                                <option value="Yes">Is a coach</option>
-                                <option value="No">Not a coach</option>
+                        <Form.Group className="mb-3">
+                            <Form.Label style={{ fontWeight: 600, marginBottom: '12px' }}>
+                                É Coach?
+                            </Form.Label>
+                            <Form.Select 
+                                value={staff.isCoach ? "Sim" : "Não"}
+                                onChange={(e) => {setStaff({...staff, isCoach: e.currentTarget.value === "Sim"})}}
+                                size="lg"
+                                style={{
+                                    padding: '12px 16px',
+                                    fontSize: '16px',
+                                }}
+                            >
+                                <option>Selecione</option>
+                                <option value="Sim">É um coach</option>
+                                <option value="Não">Não é coach</option>
                             </Form.Select>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
-                        Close
+                        Cancelar
                     </Button>
+                    {!adding && (
+                        <Button variant="danger" onClick={handleDelete}>
+                            Excluir
+                        </Button>
+                    )}
                     <Button variant="primary" onClick={handleSave}>
-                        {adding ? "Add" : "Save Changes"}
+                        {adding ? "Cadastrar" : "Salvar Alterações"}
                     </Button>
-                    {!adding && <Button variant="danger" onClick={handleDelete}>
-                        Delete
-                    </Button>}
                 </Modal.Footer>
             </Modal>
-        </div>
+        </Container>
     );
 };
 

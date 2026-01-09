@@ -1,5 +1,5 @@
 import axios from "axios";
-import { toast } from "react-toastify";
+import { showErrorToast } from "../components/Toast";
 
 axios.interceptors.request.use(function (config) {
   const managerToken = localStorage.getItem("manager_token");
@@ -18,7 +18,8 @@ axios.interceptors.request.use(function (config) {
 });
 
 axios.interceptors.response.use(null, (error) => {
-  toast.error(error.response.data);
+  const errorMessage = error.response?.data || "Ocorreu um erro. Por favor, tente novamente.";
+  showErrorToast(errorMessage);
   return Promise.reject(error);
 });
 

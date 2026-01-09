@@ -20,12 +20,12 @@ const Purchase = ({
     },
     validationSchema: Yup.object({
       quantity: Yup.number()
-        .integer("The input quantity should be an integer.")
-        .max(100, "The input quantity must be less than or equal to 100.")
-        .min(1, "The input quantity must be greater than or equal to 1.")
+        .integer("A quantidade deve ser um número inteiro.")
+        .max(100, "A quantidade máxima é 100.")
+        .min(1, "A quantidade mínima é 1.")
         .test(
           "testOverload",
-          "Exceeding quantity Limitation.",
+          "Quantidade excede o limite.",
           function testOverload(value) {
             let item = shoppingCartItems.find((item) => {
               return item._id == product._id;
@@ -37,7 +37,7 @@ const Purchase = ({
             }
           }
         )
-        .required(),
+        .required("Quantidade é obrigatória."),
     }),
   });
 
@@ -55,16 +55,21 @@ const Purchase = ({
   return (
     <Modal show={ifPurchasing} onHide={onCancelPurchase}>
       <Modal.Header closeButton>
-        <Modal.Title>{ifPurchasing ? product.name : " "}</Modal.Title>
+        <Modal.Title style={{ fontWeight: 700, color: '#1a1a1a' }}>
+          {ifPurchasing ? product.name : " "}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {ifPurchasing ? product.description : " "}
+        <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+          {ifPurchasing ? product.description : " "}
+        </p>
         <div>
-          <br />
-          <p>Price: ${ifPurchasing ? product.price : " "}</p>
+          <p style={{ fontSize: '18px', fontWeight: 700, color: '#ff6b35' }}>
+            Preço: R$ {ifPurchasing ? product.price.toFixed(2) : "0.00"}
+          </p>
           <form>
             <div className="form-group">
-              <label htmlFor="quantityInput">Quantity:</label>
+              <label htmlFor="quantityInput" className="form-label">Quantidade:</label>
               <input
                 type="number"
                 name="quantity"
@@ -73,26 +78,33 @@ const Purchase = ({
                 value={formik.values.quantity}
                 onChange={formik.handleChange}
               />
-              <p className="text-danger">
+              <p className="text-danger" style={{ fontSize: '14px', marginTop: '8px' }}>
                 {formik.errors.quantity ? formik.errors.quantity : null}
               </p>
             </div>
-            <p className="mt-3">Total: ${calculateTotal()}</p>
-            <div className="d-flex">
+            <div style={{ 
+              padding: '12px', 
+              background: '#fff5f2', 
+              borderRadius: '8px',
+              marginTop: '16px'
+            }}>
+              <p className="mt-3" style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#ff6b35' }}>
+                Total: R$ {calculateTotal().toFixed(2)}
+              </p>
+            </div>
+            <div className="d-flex gap-2 mt-3">
               <Button
                 variant="primary"
                 type="submit"
                 onClick={formik.handleSubmit}
-                className="mt-3"
               >
-                Add To Cart
+                Adicionar ao Carrinho
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => onCancelPurchase()}
-                className="mt-3 mx-4"
               >
-                Cancel
+                Cancelar
               </Button>
             </div>
           </form>

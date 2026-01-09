@@ -5,25 +5,35 @@ import {
   Card,
   Col,
   Row,
-  ListGroup,
   Button,
   Modal,
   FloatingLabel,
+  Badge,
 } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import MyPagination from "../../utils/pagination";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUtensils,
+  faGraduationCap,
+  faBoxOpen,
+  faEdit,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import http from "../../services/httpService";
+import { showSuccessToast, showErrorToast } from "../../components/Toast";
+import "../../css/manager.css";
 
 const uri = process.env.REACT_APP_API_ENDPOINT + "/product/";
-const itemsPerPage = 3;
 
 const empty = {
   InStock: 0,
   price: 0,
   name: "",
-  isCourse: true,
+  description: "",
+  image: "",
+  isCourse: false,
   isMeal: false,
-  isGoods: false,
+  isGoods: true,
   startTime: "",
   endTime: "",
   courseCoachId: "",
@@ -32,46 +42,71 @@ const empty = {
 };
 
 const Product = () => {
-  const [selectedType, setSelectedType] = useState("meal");
-  const [nameKeyword, setNameKeyword] = useState("");
-  const [idKeyword, setIdKeyword] = useState("");
-  const [type, setType] = useState("all");
-  const [stockType, setStockType] = useState("all");
+  const [selectedType, setSelectedType] = useState("goods");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [show, setShow] = useState(false);
-  const [product, setProduct] = useState({});
+  const [product, setProduct] = useState(empty);
   const [adding, setAdding] = useState(false);
-  const [currentPage, setPage] = useState(1);
-  const handleClose = () => setShow(false);
-  const handleSave = async () => {
-    if (adding) await http.post(uri, product);
-    else await http.put(uri + product._id, product);
-    const data = await http.get(uri);
-    setProducts(data.data);
-    handleClose();
+  
+  const handleClose = () => {
+    setShow(false);
+    setProduct(empty);
   };
-  const handleEdit = (c) => {
-    if (c.isCourse) setSelectedType("course");
-    if (c.isMeal) setSelectedType("meal");
-    if (c.isGoods) setSelectedType("goods");
+
+  const handleSave = async () => {
+    try {
+      if (adding) {
+        await http.post(uri, product);
+        showSuccessToast("Produto cadastrado com sucesso!");
+      } else {
+        await http.put(uri + product._id, product);
+        showSuccessToast("Produto atualizado com sucesso!");
+      }
+      const data = await http.get(uri);
+      setAllProducts(data.data);
+      setProducts(data.data);
+      handleClose();
+    } catch (error) {
+      showErrorToast("Erro ao salvar produto");
+    }
+  };
+
+  const handleEdit = (p) => {
+    if (p.isCourse) setSelectedType("course");
+    else if (p.isMeal) setSelectedType("meal");
+    else setSelectedType("goods");
     setAdding(false);
-    setProduct(c);
+    setProduct(p);
     setShow(true);
   };
+
   const handleAdd = () => {
     setAdding(true);
     setProduct(empty);
+    setSelectedType("goods");
     setShow(true);
   };
+
   const handleDelete = async () => {
-    await http.delete(uri + product._id);
-    const data = await http.get(uri);
-    setProducts(data.data);
-    handleClose();
+    try {
+      await http.delete(uri + product._id);
+      showSuccessToast("Produto excluído com sucesso!");
+      const data = await http.get(uri);
+      setAllProducts(data.data);
+      setProducts(data.data);
+      handleClose();
+    } catch (error) {
+      showErrorToast("Erro ao excluir produto");
+    }
   };
+
   const handleSelectionChange = (e) => {
-    switch (e.currentTarget.value) {
+    const value = e.currentTarget.value;
+    setSelectedType(value);
+    switch (value) {
       case "meal":
         setProduct({
           ...product,
@@ -79,7 +114,6 @@ const Product = () => {
           isCourse: false,
           isGoods: false,
         });
-        setSelectedType("meal");
         break;
       case "goods":
         setProduct({
@@ -88,7 +122,6 @@ const Product = () => {
           isCourse: false,
           isGoods: true,
         });
-        setSelectedType("goods");
         break;
       case "course":
         setProduct({
@@ -97,16 +130,8 @@ const Product = () => {
           isCourse: true,
           isGoods: false,
         });
-        setSelectedType("course");
         break;
     }
-  };
-  const getPagedItems = (items) => {
-    return items.filter(
-      (item) =>
-        items.indexOf(item) >= (currentPage - 1) * itemsPerPage &&
-        items.indexOf(item) < currentPage * itemsPerPage
-    );
   };
 
   useEffect(() => {
@@ -120,299 +145,336 @@ const Product = () => {
 
   useEffect(() => {
     let filtered = allProducts;
-    switch (type) {
-      case "all":
-        break;
-      case "course":
-        filtered = filtered.filter((p) => p.isCourse);
-        break;
-      case "meal":
-        filtered = filtered.filter((p) => p.isMeal);
-        break;
-      case "goods":
-        filtered = filtered.filter((p) => p.isGoods);
-        break;
+    
+    // Filtro por tipo
+    if (filterType !== "all") {
+      filtered = filtered.filter((p) => {
+        if (filterType === "course") return p.isCourse;
+        if (filterType === "meal") return p.isMeal;
+        if (filterType === "goods") return p.isGoods;
+        return true;
+      });
     }
-    switch (stockType) {
-      case "all":
-        break;
-      case "in":
-        filtered = filtered.filter((p) => p.InStock > 0);
-        break;
-      case "out":
-        filtered = filtered.filter((p) => p.InStock == 0);
-        break;
+    
+    // Filtro por busca
+    if (searchTerm !== "") {
+      filtered = filtered.filter((p) =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-    if (nameKeyword !== "")
-      filtered = filtered.filter((p) =>
-        p.name.toLowerCase().includes(nameKeyword.toLowerCase())
-      );
-    if (idKeyword !== "")
-      filtered = filtered.filter((p) =>
-        p._id.toLowerCase().includes(idKeyword.toLowerCase())
-      );
+    
     setProducts(filtered);
-  }, [type, stockType, idKeyword, nameKeyword]);
+  }, [filterType, searchTerm, allProducts]);
 
-  const getProductContent = (products) => {
-    return products.map((p) => (
-      <Card
-        className="mb-3"
-        onClick={() => handleEdit(p)}
-        key={p._id}
-        style={{ cursor: "pointer" }}
-      >
-        <Card.Body>
-          {Object.entries(p).map((a) => (
-            <div key={a[0] + a[1]}>{a[0] + ": " + a[1]}</div>
-          ))}
-        </Card.Body>
-      </Card>
-    ));
+  const getProductIcon = (p) => {
+    if (p.isCourse) return <FontAwesomeIcon icon={faGraduationCap} />;
+    if (p.isMeal) return <FontAwesomeIcon icon={faUtensils} />;
+    return <FontAwesomeIcon icon={faBoxOpen} />;
+  };
+
+  const getProductType = (p) => {
+    if (p.isCourse) return "Curso";
+    if (p.isMeal) return "Refeição";
+    return "Produto";
   };
 
   return (
-    <div>
-      <Container>
-        <h1>Product</h1>
-        <Card>
-          <Card.Body>
-            <Row>
-              <Col xs={8}>{getProductContent(getPagedItems(products))}</Col>
+    <Container className="py-4">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 style={{ fontWeight: 700, color: '#1a1a1a' }}>Gerenciar Produtos</h2>
+        <Button variant="success" onClick={handleAdd}>
+          <FontAwesomeIcon icon={faPlus} /> Adicionar Produto
+        </Button>
+      </div>
 
-              <Col xs={4}>
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Search By Item ID</Card.Title>
-                    <Form.Control
-                      onChange={(e) => setIdKeyword(e.currentTarget.value)}
-                    />
-                  </Card.Body>
-                </Card>
-                <Card className="mt-3">
-                  <Card.Body>
-                    <Card.Title>Search By Name</Card.Title>
-                    <Form.Control
-                      onChange={(e) => setNameKeyword(e.currentTarget.value)}
-                    />
-                  </Card.Body>
-                </Card>
-                <Card className="mt-3">
-                  <Card.Body>
-                    <Card.Title>Filter</Card.Title>
-                    <hr />
-                    <p className="mb-1">Type:</p>
-                    <ListGroup>
-                      <ListGroup.Item
-                        as={Button}
-                        active={type === "all"}
-                        onClick={() => setType("all")}
-                      >
-                        All
-                      </ListGroup.Item>
-                      <ListGroup.Item
-                        as={Button}
-                        active={type === "meal"}
-                        onClick={() => setType("meal")}
-                      >
-                        Meal
-                      </ListGroup.Item>
-                      <ListGroup.Item
-                        as={Button}
-                        active={type === "course"}
-                        onClick={() => setType("course")}
-                      >
-                        Course
-                      </ListGroup.Item>
-                      <ListGroup.Item
-                        as={Button}
-                        active={type === "goods"}
-                        onClick={() => setType("goods")}
-                      >
-                        {" "}
-                        Goods
-                      </ListGroup.Item>
-                    </ListGroup>
-                    <p className="mb-1 mt-3">Stock:</p>
-                    <ListGroup>
-                      <ListGroup.Item
-                        as={Button}
-                        active={stockType === "all"}
-                        onClick={() => setStockType("all")}
-                      >
-                        All
-                      </ListGroup.Item>
-                      <ListGroup.Item
-                        as={Button}
-                        active={stockType === "in"}
-                        onClick={() => setStockType("in")}
-                      >
-                        In stock
-                      </ListGroup.Item>
-                      <ListGroup.Item
-                        as={Button}
-                        active={stockType === "out"}
-                        onClick={() => setStockType("out")}
-                      >
-                        Out of stock
-                      </ListGroup.Item>
-                    </ListGroup>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-            <MyPagination
-              onPageChange={setPage}
-              currentPage={currentPage}
-              itemsPerPage={itemsPerPage}
-              totalItems={products.length}
-            />
-            <Button as={Link} to="/branch/manage">
-              Back
-            </Button>
-            <Button className="mx-2" onClick={handleAdd}>
-              Add
-            </Button>
-          </Card.Body>
-        </Card>
-      </Container>
+      <Row className="mb-4">
+        <Col md={8}>
+          <Form.Control
+            type="text"
+            placeholder="🔍 Buscar produtos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '12px 20px',
+              fontSize: '16px',
+              borderRadius: '8px',
+            }}
+          />
+        </Col>
+        <Col md={4}>
+          <Form.Select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            style={{
+              padding: '12px 20px',
+              fontSize: '16px',
+              borderRadius: '8px',
+            }}
+          >
+            <option value="all">Todos os Tipos</option>
+            <option value="goods">Produtos</option>
+            <option value="meal">Refeições</option>
+            <option value="course">Cursos</option>
+          </Form.Select>
+        </Col>
+      </Row>
 
+      <Row>
+        {products.length === 0 ? (
+          <Col>
+            <Card className="text-center py-5">
+              <Card.Body>
+                <p className="text-muted">Nenhum produto encontrado</p>
+              </Card.Body>
+            </Card>
+          </Col>
+        ) : (
+          products.map((p) => (
+            <Col md={6} lg={4} key={p._id} className="mb-4">
+              <Card
+                style={{
+                  borderRadius: '12px',
+                  border: '1px solid #e0e0e0',
+                  height: '100%',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                }}
+                className="h-100 hover-card"
+              >
+                <div
+                  style={{
+                    height: '200px',
+                    overflow: 'hidden',
+                    borderTopLeftRadius: '12px',
+                    borderTopRightRadius: '12px',
+                    background: '#f5f5f5',
+                  }}
+                >
+                  <img
+                    src={p.image || '/gym-logo.svg'}
+                    alt={p.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                </div>
+                <Card.Body>
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <Badge bg={p.isCourse ? "primary" : p.isMeal ? "warning" : "success"}>
+                      {getProductIcon(p)} {getProductType(p)}
+                    </Badge>
+                    <Badge bg={p.InStock > 0 ? "success" : "danger"}>
+                      {p.InStock > 0 ? `${p.InStock} em estoque` : 'Esgotado'}
+                    </Badge>
+                  </div>
+                  <h5 style={{ fontWeight: 700, marginBottom: '8px' }}>{p.name}</h5>
+                  <p className="text-muted" style={{ fontSize: '14px', marginBottom: '12px' }}>
+                    {p.description || 'Produto disponível na academia'}
+                  </p>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h4 style={{ color: '#2563eb', fontWeight: 700, margin: 0 }}>
+                      R$ {Number(p.price).toFixed(2)}
+                    </h4>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => handleEdit(p)}
+                    >
+                      <FontAwesomeIcon icon={faEdit} /> Editar
+                    </Button>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        )}
+      </Row>
+
+      <div className="mt-4">
+        <Button as={Link} to="/branch/manage" variant="secondary">
+          Voltar
+        </Button>
+      </div>
+
+      {/* Modal de Edição/Criação */}
       <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>
-            {Object.keys(product).length === 0 ? "Add a product" : "Edit a product"}
+          <Modal.Title style={{ fontWeight: 700 }}>
+            {adding ? "Adicionar Produto" : "Editar Produto"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group className="mb-2">
-              <FloatingLabel label="Stock">
+            <Form.Group className="mb-3">
+              <FloatingLabel label="Nome do Produto">
                 <Form.Control
-                  placeholder=" "
-                  value={product.InStock}
-                  onChange={(e) => {
-                    setProduct({ ...product, InStock: e.currentTarget.value });
-                  }}
-                />
-              </FloatingLabel>
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <FloatingLabel label="Price">
-                <Form.Control
-                  placeholder=" "
-                  value={product.price}
-                  onChange={(e) => {
-                    setProduct({ ...product, price: e.currentTarget.value });
-                  }}
-                />
-              </FloatingLabel>
-            </Form.Group>
-            <Form.Group className="mb-2">
-              <FloatingLabel label="Name">
-                <Form.Control
+                  type="text"
                   placeholder=" "
                   value={product.name}
-                  onChange={(e) => {
-                    setProduct({ ...product, name: e.currentTarget.value });
-                  }}
+                  onChange={(e) => setProduct({ ...product, name: e.target.value })}
+                  style={{ padding: '20px 12px' }}
                 />
               </FloatingLabel>
             </Form.Group>
-            {adding && (
-              <Form.Group className="mb-2">
-                <Form.Select
-                  value={selectedType}
-                  onChange={handleSelectionChange}
-                  size="lg"
-                  style={{
-                    fontSize: "16px",
-                    paddingLeft: "12px",
-                    paddingTop: "16px",
-                    paddingBottom: "16px",
-                  }}
-                >
-                  <option>Type</option>
-                  <option value="meal">Meal</option>
-                  <option value="course">Course</option>
-                  <option value="goods">Goods</option>
-                </Form.Select>
-              </Form.Group>
-            )}
+
+            <Form.Group className="mb-3">
+              <FloatingLabel label="Descrição">
+                <Form.Control
+                  as="textarea"
+                  placeholder=" "
+                  value={product.description || ""}
+                  onChange={(e) => setProduct({ ...product, description: e.target.value })}
+                  style={{ padding: '20px 12px', height: '80px' }}
+                />
+              </FloatingLabel>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <FloatingLabel label="URL da Imagem">
+                <Form.Control
+                  type="text"
+                  placeholder=" "
+                  value={product.image || ""}
+                  onChange={(e) => setProduct({ ...product, image: e.target.value })}
+                  style={{ padding: '20px 12px' }}
+                />
+              </FloatingLabel>
+              <Form.Text className="text-muted">
+                Ex: /energy-drink.jpeg ou https://exemplo.com/imagem.jpg
+              </Form.Text>
+            </Form.Group>
+
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <FloatingLabel label="Preço (R$)">
+                    <Form.Control
+                      type="number"
+                      step="0.01"
+                      placeholder=" "
+                      value={product.price}
+                      onChange={(e) => setProduct({ ...product, price: e.target.value })}
+                      style={{ padding: '20px 12px' }}
+                    />
+                  </FloatingLabel>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <FloatingLabel label="Quantidade em Estoque">
+                    <Form.Control
+                      type="number"
+                      placeholder=" "
+                      value={product.InStock}
+                      onChange={(e) => setProduct({ ...product, InStock: e.target.value })}
+                      style={{ padding: '20px 12px' }}
+                    />
+                  </FloatingLabel>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group className="mb-3">
+              <Form.Label style={{ fontWeight: 600, marginBottom: '12px' }}>
+                Tipo de Produto
+              </Form.Label>
+              <Form.Select
+                value={selectedType}
+                onChange={handleSelectionChange}
+                size="lg"
+                style={{
+                  padding: '12px 16px',
+                  fontSize: '16px',
+                }}
+              >
+                <option value="goods">Produto</option>
+                <option value="meal">Refeição</option>
+                <option value="course">Curso</option>
+              </Form.Select>
+            </Form.Group>
+
+            {/* Campos específicos para Cursos */}
             {selectedType === "course" && (
-              <div>
-                <Form.Group className="mb-2">
-                  <FloatingLabel label="Start Date">
+              <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px', marginTop: '16px' }}>
+                <h6 style={{ fontWeight: 600, marginBottom: '16px' }}>Detalhes do Curso</h6>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <FloatingLabel label="Horário de Início">
+                        <Form.Control
+                          type="text"
+                          placeholder=" "
+                          value={product.startTime}
+                          onChange={(e) => setProduct({ ...product, startTime: e.target.value })}
+                          style={{ padding: '20px 12px' }}
+                        />
+                      </FloatingLabel>
+                      <Form.Text>Ex: 08:00</Form.Text>
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <FloatingLabel label="Horário de Término">
+                        <Form.Control
+                          type="text"
+                          placeholder=" "
+                          value={product.endTime}
+                          onChange={(e) => setProduct({ ...product, endTime: e.target.value })}
+                          style={{ padding: '20px 12px' }}
+                        />
+                      </FloatingLabel>
+                      <Form.Text>Ex: 09:00</Form.Text>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Form.Group className="mb-3">
+                  <FloatingLabel label="ID do Coach">
                     <Form.Control
-                      placeholder=" "
-                      value={product.startTime}
-                      onChange={(e) => {
-                        setProduct({
-                          ...product,
-                          startTime: e.currentTarget.value,
-                        });
-                      }}
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-                <Form.Group className="mb-2">
-                  <FloatingLabel label="End Date">
-                    <Form.Control
-                      placeholder=" "
-                      value={product.endTime}
-                      onChange={(e) => {
-                        setProduct({
-                          ...product,
-                          endTime: e.currentTarget.value,
-                        });
-                      }}
-                    />
-                  </FloatingLabel>
-                </Form.Group>
-                <Form.Group className="mb-2">
-                  <FloatingLabel label="Coach ID">
-                    <Form.Control
+                      type="text"
                       placeholder=" "
                       value={product.courseCoachId}
-                      onChange={(e) => {
-                        setProduct({
-                          ...product,
-                          courseCoachId: e.currentTarget.value,
-                        });
-                      }}
+                      onChange={(e) => setProduct({ ...product, courseCoachId: e.target.value })}
+                      style={{ padding: '20px 12px' }}
                     />
                   </FloatingLabel>
+                  <Form.Text>ID do coach responsável pelo curso</Form.Text>
                 </Form.Group>
               </div>
             )}
+
+            {/* Campos específicos para Refeições */}
             {selectedType === "meal" && (
-              <div>
-                <Form.Group className="mb-2">
-                  <FloatingLabel label="Calories">
+              <div style={{ background: '#fff3cd', padding: '20px', borderRadius: '8px', marginTop: '16px' }}>
+                <h6 style={{ fontWeight: 600, marginBottom: '16px' }}>Detalhes da Refeição</h6>
+                <Form.Group className="mb-3">
+                  <FloatingLabel label="Calorias">
                     <Form.Control
+                      type="number"
                       placeholder=" "
                       value={product.calories}
-                      onChange={(e) => {
-                        setProduct({
-                          ...product,
-                          calories: e.currentTarget.value,
-                        });
-                      }}
+                      onChange={(e) => setProduct({ ...product, calories: e.target.value })}
+                      style={{ padding: '20px 12px' }}
                     />
                   </FloatingLabel>
                 </Form.Group>
-                <Form.Group className="mb-2">
-                  <FloatingLabel label="Allergies">
+                <Form.Group className="mb-3">
+                  <FloatingLabel label="Alergênicos (separados por vírgula)">
                     <Form.Control
+                      type="text"
                       placeholder=" "
-                      value={product.allergies}
-                      onChange={(e) => {
+                      value={Array.isArray(product.allergies) ? product.allergies.join(", ") : ""}
+                      onChange={(e) =>
                         setProduct({
                           ...product,
-                          allergies: e.currentTarget.value.split(","),
-                        });
-                      }}
+                          allergies: e.target.value.split(",").map(a => a.trim()),
+                        })
+                      }
+                      style={{ padding: '20px 12px' }}
                     />
                   </FloatingLabel>
+                  <Form.Text>Ex: Glúten, Lactose, Amendoim</Form.Text>
                 </Form.Group>
               </div>
             )}
@@ -420,19 +482,26 @@ const Product = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-            {Object.keys(product).length === 0 ? "Add" : "Save changes"}
+            Cancelar
           </Button>
           {!adding && (
             <Button variant="danger" onClick={handleDelete}>
-              Delete
+              Excluir
             </Button>
           )}
+          <Button variant="primary" onClick={handleSave}>
+            {adding ? "Cadastrar" : "Salvar Alterações"}
+          </Button>
         </Modal.Footer>
       </Modal>
-    </div>
+
+      <style>{`
+        .hover-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+      `}</style>
+    </Container>
   );
 };
 

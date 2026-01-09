@@ -32,57 +32,57 @@ const ProfileCard = ({ onSubmitUpdate, onUpdate, profile }) => {
                     className="align-self-center"
                   />
                 )}
-                <p className="align-self-center mt-2 mb-0">
-                  Name: {profile.firstName} {profile.lastName}
+                <p className="align-self-center mt-2 mb-0" style={{ fontWeight: 600, fontSize: '18px' }}>
+                  Nome: {profile.firstName} {profile.lastName}
                 </p>
               </Col>
               <Col
                 className="container-fluid d-flex flex-column"
                 style={{ height: "100%" }}
               >
-                <p>Gender: {profile.gender}</p>
+                <p><strong>Gênero:</strong> {profile.gender === 'male' ? 'Masculino' : profile.gender === 'female' ? 'Feminino' : profile.gender}</p>
                 <p>
-                  Weight:{" "}
+                  <strong>Peso:</strong>{" "}
                   {profile.fitnessProfile.weight !== 0
                     ? profile.fitnessProfile.weight
-                    : "no data"}{" "}
+                    : "sem dados"}{" "}
                   kg{" "}
                 </p>
                 <p>
-                  Height:{" "}
+                  <strong>Altura:</strong>{" "}
                   {profile.fitnessProfile.height !== 0
                     ? profile.fitnessProfile.height
-                    : "no data"}{" "}
+                    : "sem dados"}{" "}
                   cm
                 </p>
                 <p>
-                  BFP:{" "}
+                  <strong>Gordura Corporal:</strong>{" "}
                   {profile.fitnessProfile.BFP !== 0
                     ? profile.fitnessProfile.BFP
-                    : "no data"}{" "}
+                    : "sem dados"}{" "}
                   %
                 </p>
                 <p>
-                  BMI:{" "}
+                  <strong>IMC:</strong>{" "}
                   {profile.fitnessProfile.BMI !== 0
-                    ? profile.fitnessProfile.BMI
-                    : "no data"}
+                    ? profile.fitnessProfile.BMI.toFixed(2)
+                    : "sem dados"}
                 </p>
-                <p>
-                  Latest update:{" "}
+                <p style={{ color: '#6b7280', fontSize: '14px' }}>
+                  <strong>Última atualização:</strong>{" "}
                   {new Date(
                     profile.fitnessProfile.lastUpdateDate
-                  ).toLocaleDateString()}{" "}
+                  ).toLocaleDateString('pt-BR')}{" às "}
                   {new Date(
                     profile.fitnessProfile.lastUpdateDate
-                  ).toLocaleTimeString()}
+                  ).toLocaleTimeString('pt-BR')}
                 </p>
                 <button
                   type="button"
-                  className="btn btn-outline-primary align-self-end"
+                  className="btn btn-primary align-self-end"
                   onClick={onUpdate}
                 >
-                  Update
+                  Atualizar Perfil
                 </button>
               </Col>
             </Row>

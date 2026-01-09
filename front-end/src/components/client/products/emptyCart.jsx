@@ -7,15 +7,16 @@ const EmptyCart = ({ ifVisible, onClose }) => {
     <div>
       <Modal show={ifVisible} onHide={onClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Empty Shopping Cart</Modal.Title>
+          <Modal.Title style={{ fontWeight: 700, color: '#1a1a1a' }}>
+            Carrinho Vazio
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Your shopping cart is empty. Please add some items before placing the
-          order.
+          Seu carrinho está vazio. Por favor, adicione alguns produtos antes de fazer o pedido.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={onClose}>
-            Close
+            Fechar
           </Button>
         </Modal.Footer>
       </Modal>

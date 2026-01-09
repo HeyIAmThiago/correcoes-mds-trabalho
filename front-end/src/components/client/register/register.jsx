@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { showSuccessToast, showErrorToast } from "../../Toast";
 
 const Register = () => {
   // CORREÇÃO 1: Definindo o endereço de fallback DENTRO do componente
@@ -32,66 +33,75 @@ const Register = () => {
       image: null,
     },
     onSubmit: async (values) => {
-      const {
-        firstName,
-        lastName,
-        gender,
-        phoneNumber,
-        email,
-        password,
-        // O campo 'image' não será mais usado após a remoção do upload.
-      } = values;
+      try {
+        const {
+          firstName,
+          lastName,
+          gender,
+          phoneNumber,
+          email,
+          password,
+          // O campo 'image' não será mais usado após a remoção do upload.
+        } = values;
 
-      // VARIÁVEL DE FALLBACK (Usuário será criado sem avatar, pois não é obrigatório no backend)
-      const avatarUrl = null;
+        // VARIÁVEL DE FALLBACK (Usuário será criado sem avatar, pois não é obrigatório no backend)
+        const avatarUrl = null;
 
-      await axios.post(uri, {
-        firstName,
-        lastName,
-        phoneNumber,
-        email,
-        password,
-        gender,
-        avatarUrl,
-      });
-      navigate("/login");
+        await axios.post(uri, {
+          firstName,
+          lastName,
+          phoneNumber,
+          email,
+          password,
+          gender,
+          avatarUrl,
+        });
+        
+        showSuccessToast("Cadastro realizado com sucesso! Faça login para continuar. 🎉");
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
+      } catch (error) {
+        const errorMessage = error.response?.data || "Erro ao realizar cadastro. Verifique os dados e tente novamente.";
+        showErrorToast(errorMessage);
+      }
     },
     validationSchema: Yup.object({
       firstName: Yup.string()
-        .max(30, "The first name is too long")
-        .required("Firstname is required"),
+        .max(30, "O nome é muito longo")
+        .required("Nome é obrigatório"),
       lastName: Yup.string()
-        .max(30, "The last name is too long")
-        .required("Lastname is required"),
+        .max(30, "O sobrenome é muito longo")
+        .required("Sobrenome é obrigatório"),
       phoneNumber: Yup.string()
-        .max(10, "Ten characters required")
-        .min(10, "Ten characters required")
-        .required("Phone number is required"),
+        .max(10, "Telefone deve ter 10 dígitos")
+        .min(10, "Telefone deve ter 10 dígitos")
+        .required("Telefone é obrigatório"),
       gender: Yup.string()
-        .max(9, "Too long")
-        .required("Phone number is required"),
+        .max(20, "Muito longo")
+        .required("Gênero é obrigatório"),
       email: Yup.string()
-        .email("Please enter a valid email address.")
-        .required("Email is required."),
+        .email("Por favor, insira um endereço de e-mail válido.")
+        .required("E-mail é obrigatório."),
       password: Yup.string()
-        .required("Password is required.")
-        .min(8, "The password should be at least 8 characters."),
+        .required("Senha é obrigatória.")
+        .min(8, "A senha deve ter no mínimo 8 caracteres."),
       confirmPassword: Yup.string()
-        .required("Please re-enter the password.")
-        .oneOf([Yup.ref("password")], "Passwords do not match"),
+        .required("Por favor, confirme sua senha.")
+        .oneOf([Yup.ref("password")], "As senhas não coincidem"),
 
       // CORREÇÃO 2: Removida a validação obrigatória da imagem
       // Para testes locais, onde o upload foi desabilitado.
       image: Yup.mixed()
         .test(
           "fileSize",
-          "File too large",
+          "Arquivo muito grande",
           // Permite que o campo seja nulo, se a imagem não for selecionada
           (value) => !value || value.size <= FILE_SIZE
         )
         .test(
           "fileFormat",
-          "Unsupported Format",
+          "Formato não suportado",
           (value) => !value || SUPPORTED_FORMATS.has(value.type)
         ),
     }),
@@ -105,7 +115,7 @@ const Register = () => {
         <div className="card mt-5 register-card" style={{ width: "40rem" }}>
           <div className="card-body">
             <div className="d-flex align-items-center flex-column mb-3">
-              <h3 className="card-title mb-3">Register</h3>
+              <h3 className="card-title mb-3" style={{ fontWeight: 700, color: '#1a1a1a' }}>Cadastro</h3>
               {formik.values.image && !formik.errors.image ? (
                 <img
                   src={URL.createObjectURL(formik.values.image)}
@@ -119,7 +129,7 @@ const Register = () => {
             <form>
               <div className="mb-3">
                 <label htmlFor="formFile" className="form-label">
-                  Upload your profile picture (Opcional para teste)
+                  Foto de perfil (opcional)
                 </label>
                 <input
                   className="form-control"
@@ -138,11 +148,11 @@ const Register = () => {
               </div>
               <div className="row">
                 <div className="col-12 col-md-6">
-                  <label htmlFor="exampleInputEmail1">First name</label>
+                  <label htmlFor="exampleInputEmail1">Nome</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="First name"
+                    placeholder="Seu nome"
                     name="firstName"
                     value={formik.values.firstName}
                     onChange={formik.handleChange}
@@ -155,11 +165,11 @@ const Register = () => {
                   </p>
                 </div>
                 <div className="col-12 col-md-6">
-                  <label htmlFor="exampleInputEmail1">Last name</label>
+                  <label htmlFor="exampleInputEmail1">Sobrenome</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Last name"
+                    placeholder="Seu sobrenome"
                     name="lastName"
                     value={formik.values.lastName}
                     onChange={formik.handleChange}
@@ -174,11 +184,11 @@ const Register = () => {
               </div>
               <div className="row mt-3">
                 <div className="col-12 col-md-6">
-                  <label htmlFor="exampleInputEmail1">Phone number</label>
+                  <label htmlFor="exampleInputEmail1">Telefone</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Phone number"
+                    placeholder="(00) 00000-0000"
                     name="phoneNumber"
                     value={formik.values.phoneNumber}
                     onChange={formik.handleChange}
@@ -191,11 +201,11 @@ const Register = () => {
                   </p>
                 </div>
                 <div className="col-12 col-md-6">
-                  <label htmlFor="exampleInputEmail1">Gender</label>
+                  <label htmlFor="exampleInputEmail1">Gênero</label>
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Gender"
+                    placeholder="Masculino/Feminino/Outro"
                     name="gender"
                     value={formik.values.gender}
                     onChange={formik.handleChange}
@@ -209,13 +219,13 @@ const Register = () => {
                 </div>
               </div>
               <div className="form-group mt-3">
-                <label htmlFor="exampleInputEmail1">Email address</label>
+                <label htmlFor="exampleInputEmail1">Endereço de e-mail</label>
                 <input
                   type="email"
                   name="email"
                   className="form-control"
                   id="exampleInputEmail1"
-                  placeholder="Email address"
+                  placeholder="seu@email.com"
                   aria-describedby="emailHelp"
                   value={formik.values.email}
                   onChange={formik.handleChange}
@@ -228,13 +238,13 @@ const Register = () => {
                 </p>
               </div>
               <div className="form-group mt-3">
-                <label htmlFor="exampleInputPassword1">Password</label>
+                <label htmlFor="exampleInputPassword1">Senha</label>
                 <input
                   type="password"
                   name="password"
                   className="form-control"
                   id="exampleInputPassword1"
-                  placeholder="Password"
+                  placeholder="••••••••"
                   value={formik.values.password}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -246,13 +256,13 @@ const Register = () => {
                 </p>
               </div>
               <div className="form-group mt-3">
-                <label htmlFor="exampleInputPassword2">Confirm Password</label>
+                <label htmlFor="exampleInputPassword2">Confirmar Senha</label>
                 <input
                   type="password"
                   name="confirmPassword"
                   className="form-control"
                   id="exampleInputPassword2"
-                  placeholder="Confirm Password"
+                  placeholder="••••••••"
                   value={formik.values.confirmPassword}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -266,10 +276,10 @@ const Register = () => {
               </div>
               <button
                 type="submit"
-                className="btn btn-primary mt-4"
+                className="btn btn-primary mt-4 w-100"
                 onClick={formik.handleSubmit}
               >
-                Register
+                Cadastrar
               </button>
             </form>
           </div>

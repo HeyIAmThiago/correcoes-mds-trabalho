@@ -8,14 +8,16 @@ const DeleteOrderConfirm = ({ order, ifVisible, onClose, onConfirm }) => {
       <div>
         <Modal show={ifVisible} onHide={onClose}>
           <Modal.Header closeButton>
-            <Modal.Title>Cancel Order</Modal.Title>
+            <Modal.Title style={{ fontWeight: 700, color: '#1a1a1a' }}>
+              Cancelar Pedido
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            This order is already fulfilled and cannot be canceled.
+            Este pedido já foi processado e não pode ser cancelado.
           </Modal.Body>
           <Modal.Footer>
             <Button variant="primary" onClick={onClose}>
-              Close
+              Fechar
             </Button>
           </Modal.Footer>
         </Modal>
@@ -26,15 +28,19 @@ const DeleteOrderConfirm = ({ order, ifVisible, onClose, onConfirm }) => {
       <div>
         <Modal show={ifVisible} onHide={onClose}>
           <Modal.Header closeButton>
-            <Modal.Title>Cancel Order</Modal.Title>
+            <Modal.Title style={{ fontWeight: 700, color: '#1a1a1a' }}>
+              Cancelar Pedido
+            </Modal.Title>
           </Modal.Header>
-          <Modal.Body>Are you sure you want to cancel this order?</Modal.Body>
+          <Modal.Body>
+            Tem certeza que deseja cancelar este pedido?
+          </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={onConfirm}>
-              Confirm
+            <Button variant="danger" onClick={onConfirm}>
+              Confirmar Cancelamento
             </Button>
             <Button variant="secondary" onClick={onClose}>
-              Close
+              Voltar
             </Button>
           </Modal.Footer>
         </Modal>
